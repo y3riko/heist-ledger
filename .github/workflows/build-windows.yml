@@ -1,4 +1,4 @@
-name: Build Windows EXE
+name: Build All Platforms
 
 on:
   push:
@@ -34,3 +34,35 @@ jobs:
         with:
           name: HeistLedger-Windows
           path: dist/HeistLedger.exe
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install PyQt6 reportlab pyinstaller
+
+      - name: Build macOS app
+        run: |
+          pyinstaller --onefile --windowed --name HeistLedger \
+            --add-data "assets:assets" \
+            --collect-all PyQt6 \
+            --hidden-import reportlab \
+            --hidden-import reportlab.platypus \
+            --hidden-import reportlab.lib.pagesizes \
+            main.py
+
+      - name: Zip app bundle
+        run: cd dist && zip -r HeistLedger-macOS.zip HeistLedger
+
+      - name: Upload macOS app
+        uses: actions/upload-artifact@v4
+        with:
+          name: HeistLedger-macOS
+          path: dist/HeistLedger-macOS.zip

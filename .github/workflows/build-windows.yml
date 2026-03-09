@@ -66,7 +66,9 @@ jobs:
         run: |
           pyinstaller --windowed --name HeistLedger \
             --add-data "assets:assets" \
-            --collect-all PyQt6 \
+            --hidden-import PyQt6.QtWidgets \
+            --hidden-import PyQt6.QtCore \
+            --hidden-import PyQt6.QtGui \
             --hidden-import reportlab \
             --hidden-import reportlab.platypus \
             --hidden-import reportlab.lib.pagesizes \

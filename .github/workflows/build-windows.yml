@@ -48,18 +48,33 @@ jobs:
       - name: Install dependencies
         run: pip install PyQt6 reportlab pyinstaller
 
-      - name: Build macOS app
+      - name: Create macOS icon
         run: |
-          pyinstaller --onefile --windowed --name HeistLedger \
+          mkdir -p icon.iconset
+          sips -z 16 16     assets/logo_badge.png --out icon.iconset/icon_16x16.png
+          sips -z 32 32     assets/logo_badge.png --out icon.iconset/icon_16x16@2x.png
+          sips -z 32 32     assets/logo_badge.png --out icon.iconset/icon_32x32.png
+          sips -z 64 64     assets/logo_badge.png --out icon.iconset/icon_32x32@2x.png
+          sips -z 128 128   assets/logo_badge.png --out icon.iconset/icon_128x128.png
+          sips -z 256 256   assets/logo_badge.png --out icon.iconset/icon_128x128@2x.png
+          sips -z 256 256   assets/logo_badge.png --out icon.iconset/icon_256x256.png
+          sips -z 512 512   assets/logo_badge.png --out icon.iconset/icon_256x256@2x.png
+          sips -z 512 512   assets/logo_badge.png --out icon.iconset/icon_512x512.png
+          iconutil -c icns icon.iconset -o icon.icns
+
+      - name: Build macOS app bundle
+        run: |
+          pyinstaller --windowed --name HeistLedger \
             --add-data "assets:assets" \
             --collect-all PyQt6 \
             --hidden-import reportlab \
             --hidden-import reportlab.platypus \
             --hidden-import reportlab.lib.pagesizes \
+            --icon icon.icns \
             main.py
 
       - name: Zip app bundle
-        run: cd dist && zip -r HeistLedger-macOS.zip HeistLedger
+        run: cd dist && zip -r HeistLedger-macOS.zip HeistLedger.app
 
       - name: Upload macOS app
         uses: actions/upload-artifact@v4

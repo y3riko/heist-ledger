@@ -1,0 +1,36 @@
+name: Build Windows EXE
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install PyQt6 reportlab pyinstaller
+
+      - name: Build EXE
+        run: |
+          pyinstaller --onefile --windowed --name HeistLedger `
+            --add-data "assets;assets" `
+            --collect-all PyQt6 `
+            --hidden-import reportlab `
+            --hidden-import reportlab.platypus `
+            --hidden-import reportlab.lib.pagesizes `
+            main.py
+
+      - name: Upload EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: HeistLedger-Windows
+          path: dist/HeistLedger.exe
